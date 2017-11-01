@@ -1,9 +1,19 @@
-FROM microsoft/aspnetcore
+FROM microsoft/dotnet AS build
 
-COPY out /app
+COPY . app
 
 WORKDIR /app
 
+RUN dotnet restore; dotnet publish -o out
+
+# final image
+
+FROM microsoft/aspnetcore
+
+COPY --from=build /app/out /out
+
+WORKDIR /out
+
 EXPOSE 5000
 
-ENTRYPOINT ["dotnet", "App.dll"]
+ENTRYPOINT [ "dotnet", "App.dll" ]
